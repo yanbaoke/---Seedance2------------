@@ -36,10 +36,24 @@
     <div v-else class="task-grid">
       <div v-for="task in tasks" :key="task.id" class="task-card">
         <div class="card-header">
-          <span class="task-model">{{ task.model }}</span>
+          <span class="task-model">{{ getCtx(task.id)?.modelName || task.model }}</span>
           <el-tag :type="statusTagType(task.status)" size="small" effect="plain">
             {{ statusLabel(task.status) }}
           </el-tag>
+        </div>
+
+        <!-- 提示词与图片 -->
+        <div class="card-context" v-if="getCtx(task.id)">
+          <div v-if="getCtx(task.id).prompt" class="context-prompt">{{ getCtx(task.id).prompt }}</div>
+          <div v-if="getCtx(task.id).images?.length" class="context-images">
+            <img v-for="(img, i) in getCtx(task.id).images" :key="i" :src="img" class="context-img-thumb" @click="previewImage(img)" />
+          </div>
+          <div class="context-tags">
+            <span v-if="getCtx(task.id).mode" class="ctx-tag">{{ modeLabel(getCtx(task.id).mode) }}</span>
+            <span v-if="getCtx(task.id).ratio" class="ctx-tag">{{ getCtx(task.id).ratio }}</span>
+            <span v-if="getCtx(task.id).duration" class="ctx-tag">{{ getCtx(task.id).duration }}s</span>
+            <span v-if="getCtx(task.id).resolution" class="ctx-tag">{{ getCtx(task.id).resolution }}</span>
+          </div>
         </div>
 
         <!-- 视频预览 -->
@@ -160,6 +174,32 @@ const total = ref(0)
 const loading = ref(false)
 const filterStatus = ref('')
 let refreshTimer = null
+let taskContextMap = {}
+
+// 从 localStorage 读取任务上下文
+function loadTaskContexts() {
+  try {
+    taskContextMap = JSON.parse(localStorage.getItem('jimeng_task_context') || '{}')
+  } catch (e) { taskContextMap = {} }
+}
+
+function getCtx(taskId) {
+  return taskContextMap[taskId] || null
+}
+
+function modeLabel(mode) {
+  const map = {
+    text2video: '文生视频',
+    first_frame: '首帧生视频',
+    first_last_frame: '首尾帧生视频',
+    reference: '参考图生视频'
+  }
+  return map[mode] || mode
+}
+
+function previewImage(url) {
+  window.open(url, '_blank')
+}
 
 async function loadTasks() {
   if (!props.apiKey) return
@@ -255,6 +295,7 @@ function startAutoRefresh() {
 }
 
 onMounted(() => {
+  loadTaskContexts()
   loadTasks()
   startAutoRefresh()
 })
@@ -336,6 +377,59 @@ onUnmounted(() => {
 
 .card-video {
   background: #000;
+}
+
+/* 任务上下文：提示词 + 图片 + 标签 */
+.card-context {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.context-prompt {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+  margin-bottom: 8px;
+  max-height: 60px;
+  overflow: hidden;
+  position: relative;
+}
+
+.context-images {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.context-img-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.context-img-thumb:hover {
+  transform: scale(1.08);
+}
+
+.context-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ctx-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
 }
 
 .task-video {

@@ -317,7 +317,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onUnmounted, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onUnmounted, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Plus, Close, VideoCamera, Download, WarningFilled,
@@ -347,14 +347,50 @@ const form = reactive({
   refImages: [{ base64: '', preview: '' }]
 })
 
+const STORAGE_KEY = 'jimeng_chat_messages'
+const TASK_CTX_KEY = 'jimeng_task_context'
+
 const generating = ref(false)
-const messages = ref([])
+const messages = ref(loadMessages())
 const chatArea = ref(null)
 const fileInput = ref(null)
 const showRefDialog = ref(false)
 let uploadTarget = { type: '', index: -1 }
 let pollTimer = null
-let msgIdCounter = 0
+let msgIdCounter = messages.value.length > 0
+  ? Math.max(...messages.value.map(m => m.id))
+  : 0
+
+// 从 localStorage 恢复消息
+function loadMessages() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch (e) { /* ignore */ }
+  return []
+}
+
+// 保存消息到 localStorage
+function saveMessages() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.value))
+  } catch (e) { /* ignore */ }
+}
+
+// 监听消息变化自动保存
+watch(messages, saveMessages, { deep: true })
+
+// 保存/读取任务上下文（提示词、图片、参数）
+function saveTaskContext(taskId, ctx) {
+  try {
+    const all = JSON.parse(localStorage.getItem(TASK_CTX_KEY) || '{}')
+    all[taskId] = ctx
+    localStorage.setItem(TASK_CTX_KEY, JSON.stringify(all))
+  } catch (e) { /* ignore */ }
+}
 
 const modes = [
   { value: 'text2video', label: '文生视频' },
@@ -587,6 +623,22 @@ async function handleGenerate() {
     const result = await createTask(props.apiKey, params)
     botMsg.loading = false
     botMsg.task = { id: result.id, status: 'queued' }
+    // 保存任务上下文，供历史页面查询
+    saveTaskContext(result.id, {
+      prompt: form.prompt || '',
+      images: userImages,
+      mode: form.mode,
+      model: form.model,
+      modelName: modelShortName.value,
+      ratio: form.ratio === 'adaptive' ? '自适应' : form.ratio,
+      duration: form.duration,
+      resolution: form.resolution,
+      seed: form.seed,
+      generateAudio: form.generateAudio,
+      cameraFixed: form.cameraFixed,
+      watermark: form.watermark,
+      createdAt: Date.now()
+    })
     scrollToBottom()
     startPolling(result.id, botMsg.id)
   } catch (err) {
@@ -650,6 +702,16 @@ function downloadVideo(url) {
   a.target = '_blank'
   a.click()
 }
+
+onMounted(() => {
+  // 恢复未完成任务的轮询
+  messages.value.forEach(msg => {
+    if (msg.role === 'assistant' && msg.task && ['queued', 'running'].includes(msg.task.status)) {
+      startPolling(msg.task.id, msg.id)
+    }
+  })
+  scrollToBottom()
+})
 
 onUnmounted(() => {
   stopPolling()
