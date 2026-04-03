@@ -69,13 +69,49 @@
             <span class="info-label">时长</span>
             <span class="info-value">{{ task.duration }}秒</span>
           </div>
+          <div class="info-row">
+            <span class="info-label">帧率</span>
+            <span class="info-value">{{ task.framespersecond }} fps</span>
+          </div>
+          <div class="info-row" v-if="task.seed != null">
+            <span class="info-label">种子值</span>
+            <span class="info-value mono">{{ task.seed }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">生成音频</span>
+            <span class="info-value">{{ task.generate_audio ? '是' : '否' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">草稿模式</span>
+            <span class="info-value">{{ task.draft ? '是' : '否' }}</span>
+          </div>
+          <div class="info-row" v-if="task.service_tier">
+            <span class="info-label">服务等级</span>
+            <span class="info-value">{{ task.service_tier }}</span>
+          </div>
           <div class="info-row" v-if="task.usage?.total_tokens">
             <span class="info-label">Token消耗</span>
             <span class="info-value">{{ formatTokens(task.usage) }}</span>
           </div>
+          <div class="info-row" v-if="task.usage?.completion_tokens">
+            <span class="info-label">完成Token</span>
+            <span class="info-value">{{ task.usage.completion_tokens.toLocaleString() }}</span>
+          </div>
+          <div class="info-row" v-if="task.updated_at && task.updated_at !== task.created_at">
+            <span class="info-label">等待时间</span>
+            <span class="info-value">{{ ((task.updated_at - task.created_at) / 60).toFixed(1) }} 分钟</span>
+          </div>
           <div class="info-row">
             <span class="info-label">创建时间</span>
             <span class="info-value">{{ formatTime(task.created_at) }}</span>
+          </div>
+          <div class="info-row" v-if="task.updated_at">
+            <span class="info-label">完成时间</span>
+            <span class="info-value">{{ formatTime(task.updated_at) }}</span>
+          </div>
+          <div class="info-row" v-if="task.execution_expires_after">
+            <span class="info-label">过期时间</span>
+            <span class="info-value">{{ formatDuration(task.execution_expires_after) }}</span>
           </div>
           <div class="info-row" v-if="task.error?.message">
             <span class="info-label">错误信息</span>
@@ -192,6 +228,13 @@ function formatTokens(usage) {
 function formatTime(timestamp) {
   if (!timestamp) return '-'
   return new Date(timestamp * 1000).toLocaleString('zh-CN')
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return '-'
+  if (seconds >= 86400) return (seconds / 86400).toFixed(0) + '天'
+  if (seconds >= 3600) return (seconds / 3600).toFixed(0) + '小时'
+  return seconds + '秒'
 }
 
 // 自动轮询更新运行中的任务
