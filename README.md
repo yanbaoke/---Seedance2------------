@@ -1,4 +1,10 @@
 # Jimeng Video - 即梦API接口视频生成工具 页面仿官方
+## 在线访问
+
+项目通过 GitHub Actions 自动部署到 GitHub Pages：
+
+👉 [https://yanbaoke.github.io/jimeng-Seedance2-vue-html/](https://yanbaoke.github.io/jimeng-Seedance2-vue-html/)
+
 
 基于 [即梦 (Jimeng)](https://jimeng.jianying.com) / 火山引擎 Ark API 的视频生成 Web 客户端，UI 仿照即梦官网风格，支持多模型、多模式的 AI 视频生成，提供任务管理与视频下载功能。
 
@@ -41,6 +47,8 @@
 - **Vite 6** — 开发与构建
 - **Element Plus** — UI 组件库
 - **Axios** — HTTP 请求
+
+
 
 ## 快速开始
 

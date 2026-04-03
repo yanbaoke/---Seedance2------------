@@ -334,13 +334,11 @@ const modes = [
 ]
 
 const modelList = [
-  { value: 'doubao-seedance-2-0-fast-260128', name: 'Seedance 2.0 Fast', desc: '高性价比，快速生成高质量视频', isNew: true },
-  { value: 'doubao-seedance-2-0-260128', name: 'Seedance 2.0 限免版', desc: '旗舰模型，画质与动作表现优异', isNew: false },
-  { value: 'doubao-seedance-1-5-pro-251215', name: 'Seedance 1.5 Pro', desc: '均衡之选，兼顾质量与速度', isNew: false },
-  { value: 'doubao-seedance-1-0-pro-250428', name: 'Seedance 1.0', desc: '稳定可靠的经典模型', isNew: false },
-  { value: 'doubao-seedance-1-0-pro-fast-250428', name: 'Seedance 1.0 Fast', desc: '快速出片，适合预览', isNew: false },
-  { value: 'doubao-seedance-1-0-lite-t2v-250428', name: 'Seedance 1.0 Lite (文生)', desc: '轻量文生视频模型', isNew: false },
-  { value: 'doubao-seedance-1-0-lite-i2v-250428', name: 'Seedance 1.0 Lite (图生)', desc: '轻量图生视频模型', isNew: false }
+  { value: 'doubao-seedance-2-0-fast-260128', name: 'Seedance 2.0 Fast', desc: '高性价比，音视文图均可参考(暂不支持真人人脸)', isNew: true },
+  { value: 'doubao-seedance-2-0-260128', name: 'Seedance 2.0', desc: '全能王者，音视文图均可参考(暂不支持真人人脸)', isNew: false },
+  { value: 'doubao-seedance-1-5-pro-251215', name: 'Seedance 1.5 Pro', desc: '音画同出，全新体验', isNew: false },
+  { value: 'doubao-seedance-1-0-pro-250428', name: 'Seedance 1.0', desc: '效果最佳，画质超清', isNew: false },
+  { value: 'doubao-seedance-1-0-pro-fast-250428', name: 'Seedance 1.0 Fast', desc: 'Pro级表现，加量不加价', isNew: false }
 ]
 
 const modeLabel = computed(() => {
