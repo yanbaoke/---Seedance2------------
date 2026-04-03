@@ -1,0 +1,126 @@
+# Jimeng Video - 即梦API接口视频生成工具 页面仿官方
+
+基于 [即梦 (Jimeng)](https://jimeng.jianying.com) / 火山引擎 Ark API 的视频生成 Web 客户端，UI 仿照即梦官网风格，支持多模型、多模式的 AI 视频生成，提供任务管理与视频下载功能。
+
+![生成页面](public/1.png)
+![任务历史](public/2.png)
+
+## 功能特性
+
+### 视频生成
+- **文生视频** — 输入文字描述即可生成视频
+- **图生视频（首帧）** — 上传首帧图片，AI 生成后续画面
+- **图生视频（首尾帧）** — 上传首帧和尾帧图片，AI 补全中间过渡
+- **参考图生视频** — 上传多张参考图，AI 结合文字描述生成视频
+
+### 模型支持
+| 模型 | 说明 |
+|------|------|
+| Seedance 2.0 Fast | 高性价比，快速生成高质量视频 |
+| Seedance 2.0 限免版 | 旗舰模型，画质与动作表现优异 |
+| Seedance 1.5 Pro | 均衡之选，兼顾质量与速度 |
+| Seedance 1.0 / 1.0 Fast | 稳定可靠的经典模型 |
+| Seedance 1.0 Lite (文生/图生) | 轻量模型，适合快速预览 |
+
+### 参数配置
+- 画面比例：自适应 / 16:9 / 9:16 / 4:3 / 3:4 / 1:1 / 21:9
+- 清晰度：480p / 720p / 1080p（视模型而定）
+- 时长：2s ~ 15s（视模型而定）
+- 高级选项：Seed 种子、生成音频、固定镜头、水印
+
+### 任务管理
+- 任务列表筛选（按状态：排队中 / 生成中 / 已完成 / 失败 / 超时 / 取消）
+- 实时轮询任务状态，自动更新
+- 视频在线预览与一键下载
+- Token 消耗统计显示
+- 任务取消与删除
+
+## 技术栈
+
+- **Vue 3** — Composition API + `<script setup>`
+- **Vite 6** — 开发与构建
+- **Element Plus** — UI 组件库
+- **Axios** — HTTP 请求
+
+## 快速开始
+
+### 环境要求
+
+- Node.js >= 18
+- 即梦 / 火山引擎 Ark API Key
+
+### 安装运行
+
+```bash
+# 克隆项目
+git clone https://github.com/your-username/jimeng-video.git
+cd jimeng-video
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+```
+
+启动后访问 `http://localhost:3000`，在页面右上角填入 API Key 即可使用。
+
+### 构建部署
+
+```bash
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+构建产物在 `dist/` 目录，可部署到任意静态服务器。项目直接请求火山引擎 Ark API，无需额外配置后端代理。
+
+## 项目结构
+
+```
+src/
+├── App.vue                  # 主布局（侧边栏 + 内容区）
+├── main.js                  # 入口文件
+├── api/
+│   └── index.js             # API 请求封装（创建任务、查询、删除、上传）
+├── components/
+│   ├── Sidebar.vue          # 侧边栏导航 & API Key 设置
+│   ├── GenerationForm.vue   # 视频生成表单（仿官方 UI 风格）
+│   └── TaskHistory.vue      # 任务历史列表（卡片式布局）
+└── styles/
+    └── global.css           # 全局样式 & CSS 变量
+```
+
+## API 说明
+
+本项目直接请求火山引擎 Ark API（`https://ark.cn-beijing.volces.com/api/v3`），无需后端代理，开发与生产环境均可直接使用。
+
+| 功能 | 方法 | 路径 |
+|------|------|------|
+| 创建生成任务 | POST | `/contents/generations/tasks` |
+| 查询单个任务 | GET | `/contents/generations/tasks/:id` |
+| 批量查询任务 | GET | `/contents/generations/tasks` |
+| 取消/删除任务 | DELETE | `/contents/generations/tasks/:id` |
+| 上传文件 | POST | `/files` |
+
+API Key 存储在浏览器 `localStorage` 中，仅在本地使用，不会上传至第三方服务。
+
+## 商业版 & 定制服务
+
+为漫剧公司定制专用版本，面向企业用户提供以下核心优势：
+
+- **公司子账号分配** — 管理员统一分配子账号，员工使用独立账号操作
+- **公司资产管理** — 生成的视频、任务记录等资产归属公司，不受人员离职影响
+- **接口速度更快** — 相比官方页面，API 直连响应更迅速，生成效率更高
+- **多账号团队管理** — 支持团队协作，批量管理成员与配额
+- **工作流定制** — 可根据业务需求定制自动化视频生成工作流
+
+> 商业化版本、多账号团队管理、工作流定制请扫描微信二维码联系：
+>
+> ![微信二维码](public/3.png)
+
+## License
+
+MIT
